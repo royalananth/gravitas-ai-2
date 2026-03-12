@@ -37,33 +37,75 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 
 /* ── Hero (v1 style) ── */
 .hero-wrap {
-    text-align: center; padding: 48px 20px 40px;
-    background: linear-gradient(180deg, #0d1a2e 0%, #080c14 100%);
-    border-bottom: 1px solid rgba(99,179,237,0.12);
+    text-align: center;
+    padding: 64px 40px 56px;
+    background: radial-gradient(ellipse at 50% 0%, #0d1f3c 0%, #080c14 65%);
+    border-bottom: 1px solid rgba(99,179,237,0.08);
     margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+}
+.hero-wrap::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 50% 100%, rgba(99,179,237,0.04) 0%, transparent 70%);
+    pointer-events: none;
 }
 .hero-logo {
-    width: 110px; border-radius: 12px;
-    filter: drop-shadow(0 2px 18px rgba(255,160,140,0.45));
-    margin-bottom: 20px;
+    width: 100px; border-radius: 14px;
+    filter: drop-shadow(0 4px 24px rgba(255,140,120,0.5));
+    margin-bottom: 18px;
 }
 .hero-lab {
-    font-size: 0.72rem; color: rgba(255,160,140,0.85);
-    letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 8px;
+    font-size: 0.68rem; color: rgba(99,179,237,0.7);
+    letter-spacing: 0.28em; text-transform: uppercase; margin-bottom: 20px;
 }
-.hero-title {
-    font-size: 2.5rem; font-weight: 900; font-family: Georgia, serif;
-    background: linear-gradient(135deg, #63b3ed 0%, #a78bfa 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; margin-bottom: 8px; line-height: 1.15;
+.hero-title-wrap { margin-bottom: 16px; line-height: 1.0; }
+.hero-gravitas {
+    font-size: 5.5rem; font-weight: 900;
+    font-family: Georgia, "Times New Roman", serif;
+    color: #63b3ed;
+    display: inline;
+}
+.hero-ai {
+    font-size: 5.5rem; font-weight: 900;
+    font-family: Georgia, "Times New Roman", serif;
+    color: #f6ad55;
+    font-style: italic;
+    display: inline;
 }
 .hero-sub {
-    font-size: 1.05rem; color: #a0aec0;
-    font-style: italic; margin-bottom: 6px;
+    font-size: 2.8rem; font-weight: 900;
+    font-family: Georgia, "Times New Roman", serif;
+    color: #e2e8f0; margin-bottom: 14px; line-height: 1.1;
 }
-.hero-tagline {
-    font-size: 0.82rem; color: #718096;
-    font-style: italic;
+.hero-desc {
+    font-size: 0.92rem; color: #718096;
+    line-height: 1.7; margin-bottom: 28px;
+    max-width: 520px; margin-left: auto; margin-right: auto;
+}
+.hero-chips {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    justify-content: center; margin-bottom: 28px;
+}
+.hero-chip {
+    padding: 7px 16px; border-radius: 20px;
+    font-size: 0.78rem; font-weight: 600;
+    border: 1px solid rgba(99,179,237,0.3);
+    color: #a0aec0; background: rgba(99,179,237,0.06);
+    letter-spacing: 0.3px;
+}
+.hero-cta {
+    font-size: 0.8rem; color: #4a5568;
+    margin-top: 8px;
+}
+.hero-arrow {
+    font-size: 1.2rem; color: #4a5568; margin-top: 4px;
+    animation: bounce 2s infinite;
+}
+@keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
 }
 
 /* ── Search inputs (v1 style) ── */
@@ -254,14 +296,16 @@ def load_network_data(drug_name):
     ]
     folder = next((c for c in candidates if os.path.isdir(c)), candidates[0])
     result, figures = {}, {}
-    for key, fn in {"kegg":f"{drug_name}_KEGG.xlsx","reactome":f"{drug_name}_Reactome.xlsx",
-                    "go_bp":f"{drug_name}_GO_BP.xlsx","go_cc":f"{drug_name}_GO_CC.xlsx",
-                    "go_mf":f"{drug_name}_GO_MF.xlsx","hub_genes":f"{drug_name}_Hubgenes_STRING_centrality.xlsx",
-                    "common_genes":"Commongenes_Venn.xlsx"}.items():
-        p = os.path.join(folder,fn)
-        if os.path.exists(p):
-            try: result[key]=pd.read_excel(p)
-            except: pass
+    file_stems = {"kegg":f"{drug_name}_KEGG","reactome":f"{drug_name}_Reactome",
+                   "go_bp":f"{drug_name}_GO_BP","go_cc":f"{drug_name}_GO_CC",
+                   "go_mf":f"{drug_name}_GO_MF","hub_genes":f"{drug_name}_Hubgenes_STRING_centrality",
+                   "common_genes":"Commongenes_Venn"}
+    for key, stem in file_stems.items():
+        for ext, reader in [(".csv", pd.read_csv), (".xlsx", pd.read_excel)]:
+            p = os.path.join(folder, stem + ext)
+            if os.path.exists(p):
+                try: result[key] = reader(p); break
+                except: pass
     for key, stem in {"fig_dotplot_bp":f"{drug_name}_Dotplot_GO_BP","fig_dotplot_cc":f"{drug_name}_Dotplot_GO_CC",
                       "fig_dotplot_mf":f"{drug_name}_Dotplot_GO_MF","fig_enrichmap_kegg":f"{drug_name}_EnrichmentMap_KEGG",
                       "fig_enrichmap_reactome":f"{drug_name}_EnrichmentMap_Reactome"}.items():
@@ -325,16 +369,32 @@ except Exception as e:
 # ══════════════════════════════════════════════════════════════════
 if page == "🔍 Drug Search":
 
-    # Hero — v1 style
+    # Hero — landmark style matching v1 screenshot
     st.markdown(f"""
     <div class="hero-wrap">
-        <img src="data:image/png;base64,{LOGO_B64}" class="hero-logo"/>
-        <div class="hero-lab">The Menon Laboratory · Perinatal Research</div>
-        <div class="hero-title">Gravitas AI 2.0</div>
-        <div class="hero-sub">Know Your Drug Before You Prescribe</div>
-        <div class="hero-tagline">"It's About Saving Babies"</div>
+        <img src="data:image/png;base64,{{LOGO_B64}}" class="hero-logo"/>
+        <div class="hero-lab">The Menon Laboratory &nbsp;·&nbsp; Perinatal Research &nbsp;·&nbsp; Pregnancy Drug Intelligence</div>
+        <div class="hero-title-wrap">
+            <span class="hero-gravitas">Gravitas </span><span class="hero-ai">AI</span>
+        </div>
+        <div class="hero-sub">Know Before You Prescribe</div>
+        <div class="hero-desc">
+            Instant prediction of pregnancy safety, toxicity risk, ADME properties,<br>
+            molecular pathways, and recommended dosing — powered by 16<br>
+            validated compounds and AI.
+        </div>
+        <div class="hero-chips">
+            <span class="hero-chip">16 Drugs in DB</span>
+            <span class="hero-chip">🤖 AI for Novel Compounds</span>
+            <span class="hero-chip">175 ADME Parameters</span>
+            <span class="hero-chip">Toxicity Profiling</span>
+            <span class="hero-chip">Pregnancy Pathways</span>
+            <span class="hero-chip">PBPK Modelling</span>
+            <span class="hero-chip">DART Analysis</span>
+        </div>
+        <div class="hero-cta">Search below ↓</div>
     </div>
-    """, unsafe_allow_html=True)
+    """.replace("{{LOGO_B64}}", LOGO_B64), unsafe_allow_html=True)
 
     # Search box — v1 layout
     col1, col2 = st.columns([3, 1])
@@ -653,7 +713,7 @@ if page == "🔍 Drug Search":
                     for nt,(k,title) in zip(ntabs[:-1],nkeys):
                         with nt:
                             if k in net: st.dataframe(net[k],use_container_width=True)
-                            else: st.info(f"📂 Place {match}_{k}.xlsx in: gravitas2/data/{match}/Network_Pharmacology/")
+                            else: st.info(f"📂 File not found for {match} — {k}. Upload .csv or .xlsx to: gravitas2/data/{match}/Network_Pharmacology/")
                     with ntabs[-1]:
                         fig_lbls = {"fig_dotplot_bp":"GO-BP Dot Plot","fig_dotplot_cc":"GO-CC Dot Plot",
                                     "fig_dotplot_mf":"GO-MF Dot Plot","fig_enrichmap_kegg":"KEGG Enrichment Map",
@@ -843,7 +903,7 @@ elif page == "🕸️ Network Pharmacology":
             for nt,(k,title) in zip(ntabs[:-1],[("kegg","KEGG"),("reactome","Reactome"),("go_bp","GO BP"),("go_cc","GO CC"),("go_mf","GO MF"),("hub_genes","Hub Genes")]):
                 with nt:
                     if k in net: st.dataframe(net[k],use_container_width=True)
-                    else: st.info(f"📂 Upload to GitHub: gravitas2/data/{drug_np}/Network_Pharmacology/{drug_np}_{k}.xlsx")
+                    else: st.info(f"📂 File not found — upload .csv or .xlsx to: gravitas2/data/{drug_np}/Network_Pharmacology/")
             with ntabs[-1]:
                 if figs:
                     fc = st.columns(2)
@@ -857,7 +917,7 @@ elif page == "🕸️ Network Pharmacology":
             st.markdown(f'''<div class="g-card g-card-teal">
             <div class="sec-hdr">📂 Upload to GitHub Repo: gravitas2/data/{drug_np}/Network_Pharmacology/</div>
             <div style="font-size:0.83rem;color:#a0aec0;line-height:2.0">
-            <b style="color:#63b3ed">Tables:</b> <code>{drug_np}_KEGG.xlsx</code> · <code>{drug_np}_Reactome.xlsx</code> · <code>{drug_np}_GO_BP.xlsx</code> · <code>{drug_np}_GO_CC.xlsx</code> · <code>{drug_np}_GO_MF.xlsx</code> · <code>{drug_np}_Hubgenes_STRING_centrality.xlsx</code> · <code>Commongenes_Venn.xlsx</code><br>
+            <b style="color:#63b3ed">Tables (.csv or .xlsx):</b> <code>{drug_np}_KEGG</code> · <code>{drug_np}_Reactome.xlsx</code> · <code>{drug_np}_GO_BP.xlsx</code> · <code>{drug_np}_GO_CC.xlsx</code> · <code>{drug_np}_GO_MF.xlsx</code> · <code>{drug_np}_Hubgenes_STRING_centrality.xlsx</code> · <code>Commongenes_Venn.xlsx</code><br>
             <b style="color:#63b3ed">Figures:</b> <code>{drug_np}_EnrichmentMap_KEGG.png</code> · <code>{drug_np}_EnrichmentMap_Reactome.png</code> · <code>{drug_np}_Dotplot_GO_BP.png</code> · <code>{drug_np}_Dotplot_GO_CC.png</code> · <code>{drug_np}_Dotplot_GO_MF.png</code>
             </div></div>''', unsafe_allow_html=True)
 
