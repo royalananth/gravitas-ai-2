@@ -228,8 +228,15 @@ def get_api_key():
     except: return os.environ.get("ANTHROPIC_API_KEY","")
 
 def load_network_data(drug_name):
-    base = os.path.dirname(os.path.abspath(__file__))
-    folder = os.path.join(base, drug_name, "Network_Pharmacology")
+    app_dir = os.path.dirname(os.path.abspath(__file__))
+    # Primary: gravitas2/data/DrugName/Network_Pharmacology/ (matches GitHub structure)
+    candidates = [
+        os.path.join(app_dir, "data", drug_name, "Network_Pharmacology"),
+        os.path.join(app_dir, drug_name, "Network_Pharmacology"),
+        os.path.join(os.path.dirname(app_dir), drug_name, "Network_Pharmacology"),
+    ]
+    folder = next((c for c in candidates if os.path.isdir(c)), candidates[0])
+
     result, figures = {}, {}
     file_types = {"kegg":f"{drug_name}_KEGG.xlsx","reactome":f"{drug_name}_Reactome.xlsx",
                   "go_bp":f"{drug_name}_GO_BP.xlsx","go_cc":f"{drug_name}_GO_CC.xlsx",
@@ -596,7 +603,7 @@ if page == "🔍 Drug Search":
                     for nt,(k,title) in zip(ntabs[:-1],nkeys):
                         with nt:
                             if k in net: st.dataframe(net[k],use_container_width=True)
-                            else: st.info(f"📂 Place {match}_{k}.xlsx in {match}/Network_Pharmacology/")
+                            else: st.info(f"📂 Upload {match}_{k}.xlsx to GitHub at: {match}/Network_Pharmacology/{match}_{k}.xlsx")
                     with ntabs[-1]:
                         fig_lbls={"fig_dotplot_bp":"GO-BP Dot Plot","fig_dotplot_cc":"GO-CC Dot Plot",
                                   "fig_dotplot_mf":"GO-MF Dot Plot","fig_enrichmap_kegg":"KEGG Enrichment Map",
@@ -842,7 +849,7 @@ elif page == "🕸️ Network Pharmacology":
                     st.markdown(f'<div class="sec-hdr">{title} — {drug_np} ({len(net[k])} entries)</div>', unsafe_allow_html=True)
                     st.dataframe(net[k],use_container_width=True)
                     st.download_button(f"📥 Download",net[k].to_csv(index=False),f"{drug_np}_{k}.csv",key=f"dl_np_{k}")
-                else: st.info(f"📂 Place {drug_np}_{k}.xlsx in {drug_np}/Network_Pharmacology/")
+                else: st.info(f"📂 Upload to GitHub: {drug_np}/Network_Pharmacology/{drug_np}_{k}.xlsx")
         with stabs[-1]:
             fig_lbls={"fig_dotplot_bp":"GO-BP Dot Plot","fig_dotplot_cc":"GO-CC Dot Plot","fig_dotplot_mf":"GO-MF Dot Plot","fig_enrichmap_kegg":"KEGG Enrichment Map","fig_enrichmap_reactome":"Reactome Enrichment Map"}
             if figs:
@@ -853,10 +860,13 @@ elif page == "🕸️ Network Pharmacology":
             else: st.info(f"📂 Place PNG figures in {drug_np}/Network_Pharmacology/")
     else:
         st.markdown(f'''<div class="g-card g-card-teal">
-        <div style="font-size:0.95rem;font-weight:700;color:#4FD1C5;margin-bottom:10px">📂 Expected Folder: {drug_np}/Network_Pharmacology/</div>
+        <div style="font-size:0.95rem;font-weight:700;color:#4FD1C5;margin-bottom:10px">📂 Upload to GitHub Repo Root: <code>{drug_np}/Network_Pharmacology/</code></div>
+        <div style="font-size:0.84rem;color:#718096;margin-bottom:10px">
+        In your <strong>gravitas-ai-2</strong> repo, create this folder at the repo root (same level as <code>gravitas2/</code>):
+        </div>
         <div style="font-size:0.84rem;color:#A0AEC0;line-height:1.9">
-        Tables: <code>{drug_np}_KEGG.xlsx</code>, <code>{drug_np}_Reactome.xlsx</code>, <code>{drug_np}_GO_BP.xlsx</code>, <code>{drug_np}_GO_CC.xlsx</code>, <code>{drug_np}_GO_MF.xlsx</code>, <code>{drug_np}_Hubgenes_STRING_centrality.xlsx</code>, <code>Commongenes_Venn.xlsx</code><br>
-        Figures: <code>{drug_np}_EnrichmentMap_KEGG.png</code>, <code>{drug_np}_EnrichmentMap_Reactome.png</code>, <code>{drug_np}_Dotplot_GO_BP.png</code>, <code>{drug_np}_Dotplot_GO_CC.png</code>, <code>{drug_np}_Dotplot_GO_MF.png</code>
+        <b style="color:#63B3ED">Tables:</b> <code>{drug_np}_KEGG.xlsx</code> · <code>{drug_np}_Reactome.xlsx</code> · <code>{drug_np}_GO_BP.xlsx</code> · <code>{drug_np}_GO_CC.xlsx</code> · <code>{drug_np}_GO_MF.xlsx</code> · <code>{drug_np}_Hubgenes_STRING_centrality.xlsx</code> · <code>Commongenes_Venn.xlsx</code><br>
+        <b style="color:#63B3ED">Figures:</b> <code>{drug_np}_EnrichmentMap_KEGG.png</code> · <code>{drug_np}_EnrichmentMap_Reactome.png</code> · <code>{drug_np}_Dotplot_GO_BP.png</code> · <code>{drug_np}_Dotplot_GO_CC.png</code> · <code>{drug_np}_Dotplot_GO_MF.png</code>
         </div></div>''', unsafe_allow_html=True)
 
 # ══════════════════════════════════════════════════════════════
