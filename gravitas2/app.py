@@ -254,14 +254,16 @@ def load_network_data(drug_name):
     ]
     folder = next((c for c in candidates if os.path.isdir(c)), candidates[0])
     result, figures = {}, {}
-    for key, fn in {"kegg":f"{drug_name}_KEGG.xlsx","reactome":f"{drug_name}_Reactome.xlsx",
-                    "go_bp":f"{drug_name}_GO_BP.xlsx","go_cc":f"{drug_name}_GO_CC.xlsx",
-                    "go_mf":f"{drug_name}_GO_MF.xlsx","hub_genes":f"{drug_name}_Hubgenes_STRING_centrality.xlsx",
-                    "common_genes":"Commongenes_Venn.xlsx"}.items():
-        p = os.path.join(folder,fn)
-        if os.path.exists(p):
-            try: result[key]=pd.read_excel(p)
-            except: pass
+    file_stems = {"kegg":f"{drug_name}_KEGG","reactome":f"{drug_name}_Reactome",
+                   "go_bp":f"{drug_name}_GO_BP","go_cc":f"{drug_name}_GO_CC",
+                   "go_mf":f"{drug_name}_GO_MF","hub_genes":f"{drug_name}_Hubgenes_STRING_centrality",
+                   "common_genes":"Commongenes_Venn"}
+    for key, stem in file_stems.items():
+        for ext, reader in [(".csv", pd.read_csv), (".xlsx", pd.read_excel)]:
+            p = os.path.join(folder, stem + ext)
+            if os.path.exists(p):
+                try: result[key] = reader(p); break
+                except: pass
     for key, stem in {"fig_dotplot_bp":f"{drug_name}_Dotplot_GO_BP","fig_dotplot_cc":f"{drug_name}_Dotplot_GO_CC",
                       "fig_dotplot_mf":f"{drug_name}_Dotplot_GO_MF","fig_enrichmap_kegg":f"{drug_name}_EnrichmentMap_KEGG",
                       "fig_enrichmap_reactome":f"{drug_name}_EnrichmentMap_Reactome"}.items():
@@ -653,7 +655,7 @@ if page == "🔍 Drug Search":
                     for nt,(k,title) in zip(ntabs[:-1],nkeys):
                         with nt:
                             if k in net: st.dataframe(net[k],use_container_width=True)
-                            else: st.info(f"📂 Place {match}_{k}.xlsx in: gravitas2/data/{match}/Network_Pharmacology/")
+                            else: st.info(f"📂 File not found for {match} — {k}. Upload .csv or .xlsx to: gravitas2/data/{match}/Network_Pharmacology/")
                     with ntabs[-1]:
                         fig_lbls = {"fig_dotplot_bp":"GO-BP Dot Plot","fig_dotplot_cc":"GO-CC Dot Plot",
                                     "fig_dotplot_mf":"GO-MF Dot Plot","fig_enrichmap_kegg":"KEGG Enrichment Map",
@@ -843,7 +845,7 @@ elif page == "🕸️ Network Pharmacology":
             for nt,(k,title) in zip(ntabs[:-1],[("kegg","KEGG"),("reactome","Reactome"),("go_bp","GO BP"),("go_cc","GO CC"),("go_mf","GO MF"),("hub_genes","Hub Genes")]):
                 with nt:
                     if k in net: st.dataframe(net[k],use_container_width=True)
-                    else: st.info(f"📂 Upload to GitHub: gravitas2/data/{drug_np}/Network_Pharmacology/{drug_np}_{k}.xlsx")
+                    else: st.info(f"📂 File not found — upload .csv or .xlsx to: gravitas2/data/{drug_np}/Network_Pharmacology/")
             with ntabs[-1]:
                 if figs:
                     fc = st.columns(2)
@@ -857,7 +859,7 @@ elif page == "🕸️ Network Pharmacology":
             st.markdown(f'''<div class="g-card g-card-teal">
             <div class="sec-hdr">📂 Upload to GitHub Repo: gravitas2/data/{drug_np}/Network_Pharmacology/</div>
             <div style="font-size:0.83rem;color:#a0aec0;line-height:2.0">
-            <b style="color:#63b3ed">Tables:</b> <code>{drug_np}_KEGG.xlsx</code> · <code>{drug_np}_Reactome.xlsx</code> · <code>{drug_np}_GO_BP.xlsx</code> · <code>{drug_np}_GO_CC.xlsx</code> · <code>{drug_np}_GO_MF.xlsx</code> · <code>{drug_np}_Hubgenes_STRING_centrality.xlsx</code> · <code>Commongenes_Venn.xlsx</code><br>
+            <b style="color:#63b3ed">Tables (.csv or .xlsx):</b> <code>{drug_np}_KEGG</code> · <code>{drug_np}_Reactome.xlsx</code> · <code>{drug_np}_GO_BP.xlsx</code> · <code>{drug_np}_GO_CC.xlsx</code> · <code>{drug_np}_GO_MF.xlsx</code> · <code>{drug_np}_Hubgenes_STRING_centrality.xlsx</code> · <code>Commongenes_Venn.xlsx</code><br>
             <b style="color:#63b3ed">Figures:</b> <code>{drug_np}_EnrichmentMap_KEGG.png</code> · <code>{drug_np}_EnrichmentMap_Reactome.png</code> · <code>{drug_np}_Dotplot_GO_BP.png</code> · <code>{drug_np}_Dotplot_GO_CC.png</code> · <code>{drug_np}_Dotplot_GO_MF.png</code>
             </div></div>''', unsafe_allow_html=True)
 
