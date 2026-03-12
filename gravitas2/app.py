@@ -37,33 +37,75 @@ section[data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 
 /* ── Hero (v1 style) ── */
 .hero-wrap {
-    text-align: center; padding: 48px 20px 40px;
-    background: linear-gradient(180deg, #0d1a2e 0%, #080c14 100%);
-    border-bottom: 1px solid rgba(99,179,237,0.12);
+    text-align: center;
+    padding: 64px 40px 56px;
+    background: radial-gradient(ellipse at 50% 0%, #0d1f3c 0%, #080c14 65%);
+    border-bottom: 1px solid rgba(99,179,237,0.08);
     margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+}
+.hero-wrap::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: radial-gradient(ellipse at 50% 100%, rgba(99,179,237,0.04) 0%, transparent 70%);
+    pointer-events: none;
 }
 .hero-logo {
-    width: 110px; border-radius: 12px;
-    filter: drop-shadow(0 2px 18px rgba(255,160,140,0.45));
-    margin-bottom: 20px;
+    width: 100px; border-radius: 14px;
+    filter: drop-shadow(0 4px 24px rgba(255,140,120,0.5));
+    margin-bottom: 18px;
 }
 .hero-lab {
-    font-size: 0.72rem; color: rgba(255,160,140,0.85);
-    letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 8px;
+    font-size: 0.68rem; color: rgba(99,179,237,0.7);
+    letter-spacing: 0.28em; text-transform: uppercase; margin-bottom: 20px;
 }
-.hero-title {
-    font-size: 2.5rem; font-weight: 900; font-family: Georgia, serif;
-    background: linear-gradient(135deg, #63b3ed 0%, #a78bfa 100%);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text; margin-bottom: 8px; line-height: 1.15;
+.hero-title-wrap { margin-bottom: 16px; line-height: 1.0; }
+.hero-gravitas {
+    font-size: 5.5rem; font-weight: 900;
+    font-family: Georgia, "Times New Roman", serif;
+    color: #63b3ed;
+    display: inline;
+}
+.hero-ai {
+    font-size: 5.5rem; font-weight: 900;
+    font-family: Georgia, "Times New Roman", serif;
+    color: #f6ad55;
+    font-style: italic;
+    display: inline;
 }
 .hero-sub {
-    font-size: 1.05rem; color: #a0aec0;
-    font-style: italic; margin-bottom: 6px;
+    font-size: 2.8rem; font-weight: 900;
+    font-family: Georgia, "Times New Roman", serif;
+    color: #e2e8f0; margin-bottom: 14px; line-height: 1.1;
 }
-.hero-tagline {
-    font-size: 0.82rem; color: #718096;
-    font-style: italic;
+.hero-desc {
+    font-size: 0.92rem; color: #718096;
+    line-height: 1.7; margin-bottom: 28px;
+    max-width: 520px; margin-left: auto; margin-right: auto;
+}
+.hero-chips {
+    display: flex; flex-wrap: wrap; gap: 10px;
+    justify-content: center; margin-bottom: 28px;
+}
+.hero-chip {
+    padding: 7px 16px; border-radius: 20px;
+    font-size: 0.78rem; font-weight: 600;
+    border: 1px solid rgba(99,179,237,0.3);
+    color: #a0aec0; background: rgba(99,179,237,0.06);
+    letter-spacing: 0.3px;
+}
+.hero-cta {
+    font-size: 0.8rem; color: #4a5568;
+    margin-top: 8px;
+}
+.hero-arrow {
+    font-size: 1.2rem; color: #4a5568; margin-top: 4px;
+    animation: bounce 2s infinite;
+}
+@keyframes bounce {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
 }
 
 /* ── Search inputs (v1 style) ── */
@@ -327,16 +369,32 @@ except Exception as e:
 # ══════════════════════════════════════════════════════════════════
 if page == "🔍 Drug Search":
 
-    # Hero — v1 style
+    # Hero — landmark style matching v1 screenshot
     st.markdown(f"""
     <div class="hero-wrap">
-        <img src="data:image/png;base64,{LOGO_B64}" class="hero-logo"/>
-        <div class="hero-lab">The Menon Laboratory · Perinatal Research</div>
-        <div class="hero-title">Gravitas AI 2.0</div>
-        <div class="hero-sub">Know Your Drug Before You Prescribe</div>
-        <div class="hero-tagline">"It's About Saving Babies"</div>
+        <img src="data:image/png;base64,{{LOGO_B64}}" class="hero-logo"/>
+        <div class="hero-lab">The Menon Laboratory &nbsp;·&nbsp; Perinatal Research &nbsp;·&nbsp; Pregnancy Drug Intelligence</div>
+        <div class="hero-title-wrap">
+            <span class="hero-gravitas">Gravitas </span><span class="hero-ai">AI</span>
+        </div>
+        <div class="hero-sub">Know Before You Prescribe</div>
+        <div class="hero-desc">
+            Instant prediction of pregnancy safety, toxicity risk, ADME properties,<br>
+            molecular pathways, and recommended dosing — powered by 16<br>
+            validated compounds and AI.
+        </div>
+        <div class="hero-chips">
+            <span class="hero-chip">16 Drugs in DB</span>
+            <span class="hero-chip">🤖 AI for Novel Compounds</span>
+            <span class="hero-chip">175 ADME Parameters</span>
+            <span class="hero-chip">Toxicity Profiling</span>
+            <span class="hero-chip">Pregnancy Pathways</span>
+            <span class="hero-chip">PBPK Modelling</span>
+            <span class="hero-chip">DART Analysis</span>
+        </div>
+        <div class="hero-cta">Search below ↓</div>
     </div>
-    """, unsafe_allow_html=True)
+    """.replace("{{LOGO_B64}}", LOGO_B64), unsafe_allow_html=True)
 
     # Search box — v1 layout
     col1, col2 = st.columns([3, 1])
