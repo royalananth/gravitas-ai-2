@@ -1,0 +1,4 @@
+"category","subcategory","ID","Description","GeneRatio","BgRatio","RichFactor","FoldEnrichment","zScore","pvalue","p.adjust","qvalue","geneID","Count"
+"Metabolism","Global and overview maps","hsa01232","Nucleotide metabolism","3/7","85/9370",0.0352941176470588,47.2436974789916,11.7100618257332,2.45656092177202e-05,0.000442180965918964,0.00018100975213057,"TYMS/XDH/TYMP",3
+"Metabolism","Nucleotide metabolism","hsa00240","Pyrimidine metabolism","2/7","58/9370",0.0344827586206897,46.1576354679803,9.43217466345286,0.0007752211090249,0.0069769899812241,0.00285607777009174,"TYMS/TYMP",2
+"Metabolism","Xenobiotics biodegradation and metabolism","hsa00983","Drug metabolism - other enzymes","2/7","81/9370",0.0246913580246914,33.0511463844797,7.92117710403568,0.00150707365663994,0.00904244193983962,0.00370158441981739,"XDH/TYMP",2
