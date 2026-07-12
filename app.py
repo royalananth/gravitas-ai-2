@@ -9,6 +9,7 @@ import anthropic
 import json
 import pandas as pd
 import os
+CLAUDE_MODEL = "claude-sonnet-4-6"   # ← add this line
 
 st.set_page_config(
     page_title="Gravitas AI · The Menon Laboratory",
@@ -777,7 +778,7 @@ PBPK: {lit_r.get("Status_bucket","N/A") if len(lit_r) else "N/A"} — {lit_r.get
                             try:
                                 client = anthropic.Anthropic(api_key=key_a)
                                 resp = client.messages.create(
-                                    model="claude-sonnet-4-20250514", max_tokens=1200,
+                                    model=CLAUDE_MODEL, max_tokens=1200,
                                     system=sys_map.get(user_type, sys_map["👩‍⚕️ Clinician"]),
                                     messages=[{"role":"user","content":f"Data:\n{ctx}\n\nQuestion: {custom_q or q_map.get(user_type,'')}"}]
                                 )
@@ -810,7 +811,7 @@ PBPK: {lit_r.get("Status_bucket","N/A") if len(lit_r) else "N/A"} — {lit_r.get
                     try:
                         client = anthropic.Anthropic(api_key=key_a)
                         resp = client.messages.create(
-                            model="claude-sonnet-4-20250514", max_tokens=1400,
+                            model=CLAUDE_MODEL, max_tokens=1400,
                             system="You are Gravitas AI, expert in obstetric pharmacology. Return ONLY valid JSON, no markdown backticks.",
                             messages=[{"role":"user","content":prompt}]
                         )
@@ -948,7 +949,7 @@ elif page == "🤖 AI Consultation":
                 try:
                     client = anthropic.Anthropic(api_key=key_a)
                     resp = client.messages.create(
-                        model="claude-sonnet-4-20250514", max_tokens=1400,
+                        model=CLAUDE_MODEL, max_tokens=1400,
                         system=sys_map.get(user_type, sys_map["👩‍⚕️ Clinician"]),
                         messages=[{"role":"user","content":f"{ctx}\n\nQuestion: {custom_q or 'Compare these drugs for pregnancy safety, highlight key differences and clinical recommendations.'}"}]
                     )
